@@ -188,6 +188,29 @@ class GoogleDemoApplicationsMainViewController:
         
         updateActionMenu()
         setUpCluster()
+        addPolygonWithoutFill()
+    }
+    
+    private func addPolygonWithoutFill() {
+        let northEastLat = 37.34334362918794
+        let northEastLong = -122.0101834461093
+        let southWestLat = 37.32031022183084
+        let southWestLong = -122.0399666950107
+
+        let path = GMSMutablePath()
+        path.add(CLLocationCoordinate2D(latitude: northEastLat, longitude: northEastLong))
+        path.add(CLLocationCoordinate2D(latitude: northEastLat, longitude: southWestLong))
+        path.add(CLLocationCoordinate2D(latitude: southWestLat, longitude: southWestLong))
+        path.add(CLLocationCoordinate2D(latitude: southWestLat, longitude: northEastLong))
+        path.add(CLLocationCoordinate2D(latitude: northEastLat, longitude: northEastLong))
+        
+        let newPolygon = GMSPolygon(path: path)
+        newPolygon.fillColor = nil
+        newPolygon.strokeWidth = 2
+        newPolygon.strokeColor = UIColor.yellow
+        newPolygon.zIndex = 500
+        newPolygon.userData = "Polygon"
+        newPolygon.map = mapView
     }
     
     /// Adds the buttons to the MDC action menu
@@ -286,7 +309,7 @@ class GoogleDemoApplicationsMainViewController:
    private func lockedSnackbar() -> Bool {
        if (locked) {
            warningMessage.text = "Please turn off conflicting features first."
-           MDCSnackbarManager.show(warningMessage)
+        MDCSnackbarManager.default.show(warningMessage)
        }
        return locked
    }
@@ -366,7 +389,7 @@ class GoogleDemoApplicationsMainViewController:
     @objc func darkModeActivate(sender: UIButton!) {
         if locked {
             warningMessage.text = "Please turn off conflicting features first."
-            MDCSnackbarManager.show(self.warningMessage)
+            MDCSnackbarManager.default.show(self.warningMessage)
             return
         }
         let tempToggle: Bool = !darkModeToggle
@@ -385,7 +408,7 @@ class GoogleDemoApplicationsMainViewController:
     @objc func clearAll(sender: UIButton!) {
         if locked {
             warningMessage.text = "Please turn off conflicting features first."
-            MDCSnackbarManager.show(self.warningMessage)
+            MDCSnackbarManager.default.show(self.warningMessage)
             return
         }
         nearbyLocationMarkers.forEach { $0.map = nil }
@@ -683,7 +706,6 @@ class GoogleDemoApplicationsMainViewController:
         default:
             mapTheme = MapThemes.lightThemeId
         }
-        let mapID = GMSMapID(identifier: mapTheme)
         camera = GMSCameraPosition.camera(
             withLatitude: mapsIdentifier.getCoord().latitude,
             longitude: mapsIdentifier.getCoord().longitude,
@@ -698,7 +720,7 @@ class GoogleDemoApplicationsMainViewController:
         
         // Also needs to reset the map if the dark mode toggle is changed, due to a new mapID
         if darkModeSwitch {
-            mapView = GMSMapView(frame: self.view.frame, mapID: mapID, camera: camera)
+            mapView = GMSMapView(frame: self.view.frame, camera: camera)
         }
         
         iconVisibility(visible: zoom > 18, list: nearbyLocationMarkers)
@@ -734,7 +756,6 @@ class GoogleDemoApplicationsMainViewController:
         if mapView == nil {
             mapView = GMSMapView(
                 frame: self.view.frame,
-                mapID: GMSMapID(identifier: MapThemes.lightThemeId),
                 camera: camera
             )
         } else {
@@ -793,7 +814,7 @@ class GoogleDemoApplicationsMainViewController:
         }
         if locked {
             warningMessage.text = "Please turn off conflicting features first."
-            MDCSnackbarManager.show(self.warningMessage)
+            MDCSnackbarManager.default.show(self.warningMessage)
             return
         }
         placesClient.currentPlace(callback: { (placeLikelihoodList, error) -> Void in
@@ -838,7 +859,7 @@ class GoogleDemoApplicationsMainViewController:
         // Like other features, you should not be able access this feature while locked
         if locked {
             warningMessage.text = "Please turn off conflicting features first."
-            MDCSnackbarManager.show(warningMessage)
+            MDCSnackbarManager.default.show(warningMessage)
             return
         }
         
